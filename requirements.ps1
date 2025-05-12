@@ -1,0 +1,20 @@
+python3 -m pip install --upgrade pip setuptools wheel
+pip install beautifulsoup4==4.13.4
+pip install bs4==0.0.2
+pip install certifi==2025.1.31
+pip install charset-normalizer==3.4.1
+pip install colorama==0.4.6
+pip install customtkinter==5.2.2
+pip install darkdetect==0.8.0
+pip install idna==3.10
+pip install packaging==25.0
+pip install pyodbc==5.2.0
+pip install python-nmap==0.7.1
+pip install pywin32==310
+pip install requests==2.32.3
+pip install scapy==2.6.1
+pip install somepackage==1.2.3
+pip install soupsieve==2.7
+pip install tqdm==4.67.1
+pip install typing_extensions==4.13.2
+pip install urllib3==2.3.0
