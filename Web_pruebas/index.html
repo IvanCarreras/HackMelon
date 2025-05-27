@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<!-- 
+  Informacion de la web
+  Descripcion: Esta web a sido pensada para que sea vulnerable a ataques XSS
+  Arranque: python3 -m http.server 80
+-->
+
+<head>
+  <meta charset="UTF-8">
+  <title>WebSegura</title>
+</head>
+
+<body>
+  <h1>Formulario NO vulnerable a XSS</h1>
+  <form method="GET" action="">
+    <label for="name">Nombre:</label>
+    <input type="text" id="name" name="name">
+    <button type="submit">Enviar</button>
+  </form>
+
+  <hr>
+  <div id="result">
+    <!-- Aquí se inyecta la entrada sin sanitizar -->
+    <p>Hola, <span id="userInput"></span>!</p>
+  </div>
+
+  <!-- Payload malicioso -->
+  <!-- <img src="x" onerror="alert('XSS')"> -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get("name");
+    if (name) {
+      // Peligroso: insertamos directamente HTML del usuario
+      document.body.innerHTML += name;
+    }
+  </script>
+</body>
+
+</html>
