@@ -103,9 +103,19 @@ def escaneoRed():
     except KeyboardInterrupt:
         print("\nScript interrumpido por el usuario al pulsar control + C")
 
+# Necesario para el exe
+def recurso_path(rel_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, rel_path)
 
 def escaneoPuertos():
+
     try:
+        
         scanner = nmap.PortScanner()
         options = ""
         scanmenu = int(input(f"Tipos de escaneos: \n 1. Escaneo completo estandar\n 2. Escaneo completo UDP"
@@ -394,6 +404,4 @@ def main():
                 break
             case _:
                 print("Valor incorrecto")
-
-
 main()
