@@ -40,6 +40,8 @@ def LFI_script():
     print("=" * 50)
     print("LFI (en desarrollo)")
     print("=" * 50)
+    main()
+
 
 
 def main():
