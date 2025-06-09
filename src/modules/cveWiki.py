@@ -1,54 +1,57 @@
 # CVE Wiki
 from bs4 import BeautifulSoup
-
+import re
 import requests
 from colores import bcolors, colors
+# Regex para validar formato de CVE
+patron_cve = re.compile(r"^CVE-\d{4}-\d{4,}$")
+
+def extraer_info_cve(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    def get_text_by_id(tag, attrs):
+        elemento = soup.find(tag, attrs=attrs)
+        return elemento.text.strip() if elemento else "No encontrada"
+
+    return {
+        "descripcion": get_text_by_id('p', {"data-testid": "vuln-description"}),
+        "gravedad": get_text_by_id('a', {"data-testid": "vuln-cvss3-panel-score"}),
+        "fecha": get_text_by_id('span', {"data-testid": "vuln-published-on"}),
+    }
 
 def CVEWiki():
     print("=" * 50)
-    # Necesito esto porque algunas apginas si no le añades un user agent no te dejan entrar.
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                      '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
     }
+
     try:
-        cve_user = input(f"{bcolors.OKBLUE}Introduce un CVE ->{bcolors.ENDC} ")
-        # CVE de testing -> CVE-2025-24201
-        url_completa = "https://nvd.nist.gov/vuln/detail/"+cve_user
-        response = requests.get(url_completa, headers=headers)
+        cve_user = input(f"{bcolors.OKBLUE}Introduce un CVE ->{bcolors.ENDC} ").strip().upper()
+
+        if not patron_cve.match(cve_user):
+            print(f"{bcolors.FAIL}[-] Formato de CVE inválido. Usa CVE-YYYY-NNNN{bcolors.ENDC}")
+            return
+
+        url_completa = f"https://nvd.nist.gov/vuln/detail/{cve_user}"
+        response = requests.get(url_completa, headers=headers, timeout=10)
+
         if response.status_code == 200:
-            soup = BeautifulSoup(response.text, 'html.parser')
+            datos = extraer_info_cve(response.text)
 
-            # Extraer la descripción
-            description_tag = soup.find(
-                'p', attrs={"data-testid": "vuln-description"})
-            description = description_tag.text.strip() if description_tag else "No encontrada"
-
-            # Extraer gravedad
-            severity_tag = soup.find(
-                'a', attrs={"data-testid": "vuln-cvss3-panel-score"})
-            severity = severity_tag.text.strip() if severity_tag else "No encontrada"
-
-            # Extraer fecha de descubrimiento
-            published_date_tag = soup.find(
-                'span', attrs={"data-testid": "vuln-published-on"})
-            published_date = published_date_tag.text.strip(
-            ) if published_date_tag else "No encontrada"
-
-            # Lo que se mostrara por pantalla
             print("-" * 50)
-            print(f"{bcolors.OKCYAN}Descripción:\n{bcolors.ENDC}", description)
+            print(f"{bcolors.OKCYAN}Descripción:\n{bcolors.ENDC}", datos["descripcion"])
             print("-" * 50)
-            print(f"{bcolors.OKCYAN}Gravedad (CVSS Score):\n{bcolors.ENDC}", severity)
+            print(f"{bcolors.OKCYAN}Gravedad (CVSS Score):\n{bcolors.ENDC}", datos["gravedad"])
             print("-" * 50)
-            print(
-                f"{bcolors.OKCYAN}Fecha de descubrimiento:\n{bcolors.ENDC}", published_date)
+            print(f"{bcolors.OKCYAN}Fecha de descubrimiento:\n{bcolors.ENDC}", datos["fecha"])
             print("-" * 50)
-            print(
-                f"{bcolors.OKCYAN}Mas información en:\n{bcolors.ENDC}", url_completa)
-
+            print(f"{bcolors.OKCYAN}Más información:\n{bcolors.ENDC}", url_completa)
         else:
-            print("No se ha encontrado: " + cve_user)
+            print(f"{bcolors.FAIL}[-] No se pudo obtener información (HTTP {response.status_code}){bcolors.ENDC}")
         print("=" * 50)
+
+    except requests.exceptions.RequestException as e:
+        print(f"{bcolors.FAIL}[!] Error de conexión: {e}{bcolors.ENDC}")
     except KeyboardInterrupt:
         print("\nScript interrumpido por el usuario al pulsar control + C")
-

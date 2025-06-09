@@ -6,10 +6,10 @@
 - [ ] Refactorizar todo el codigo ya escrito
 - [x] Cambiar rutas absolutas (`D:\DAM 2\...`) → usar rutas relativas con `os.path`.
 - [ ] Guardar resultados (XSS, fuzzing, escaneos, etc.) en archivos `.log` o `.json`.
-- [ ] Evitar duplicación de código en funciones como `fuzzing()` y `XSS_script()`.
-- [ ] Añadir función `banner()` reutilizable para imprimir el logo/art.
+- [x] Evitar duplicación de código en funciones como `fuzzing()` y `XSS_script()`.
+- [x] Añadir función `banner()` reutilizable para imprimir el logo/art.
 - [ ] Usar `argparse` para poder ejecutar módulos sin pasar por el menú.
-- [X] Crear un entorno virutal para las librerias de python
+- [x] Crear un entorno virutal para las librerias de python
 
 
 ---

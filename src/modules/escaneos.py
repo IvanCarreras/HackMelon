@@ -5,6 +5,7 @@ from datetime import datetime
 from scapy.all import srp, Ether, ARP, conf, get_working_ifaces, InterfaceProvider
 
 # Escaneo de puertos
+import shutil
 import nmap
 import re
 from datetime import timedelta
@@ -16,6 +17,8 @@ def escaneoRed():
     try:
         print('=' * 50)
         interfaces = get_working_ifaces()
+        
+        
         for iface in interfaces:
             if (iface.is_valid()):
                 print(f"{colors.GREEN}Nombre:{bcolors.ENDC} {iface.name}")
@@ -27,9 +30,14 @@ def escaneoRed():
                 print(f"{colors.WHITE}MAC:{bcolors.ENDC} {iface.mac}")
                 print("-" * 40)
 
-        interfaz = input(
-            f"{bcolors.OKBLUE}Introduce el identificador de red a escanear ->{bcolors.ENDC} ")
-
+        interfaz = input(f"{bcolors.OKBLUE}Introduce el identificador de red a escanear ->{bcolors.ENDC} ")
+        
+        # Esto tambien validara el nombre ademas del identificador de red
+        interfaz_valida = next((i for i in interfaces if i.name == interfaz), None)
+        if not interfaz_valida:
+            print(f"{bcolors.FAIL}[-] Interfaz no encontrada{bcolors.ENDC}")
+            return
+        
         print(f"[*] Escaneando {interfaz} ...")
         tiempo_ini = datetime.now()
         # Hace un escaneo de la red local principal
@@ -42,6 +50,10 @@ def escaneoRed():
         # Muestra el resultado
         for snd, rcv in ans:
             print(rcv.sprintf(r"%ARP.psrc% - %Ether.src%"))
+
+        if not ans:
+            print(f"{bcolors.WARNING}[!] No se detectaron dispositivos en la red.{bcolors.ENDC}")
+
         tiempo_fin = datetime.now()
         tiempo_total = tiempo_fin - tiempo_ini
         print("\n[*] Escaneo Completado. Duracion:", tiempo_total)
@@ -50,8 +62,12 @@ def escaneoRed():
     except KeyboardInterrupt:
         print("\nScript interrumpido por el usuario al pulsar control + C")
 
-def escaneoPuertos():
 
+
+def escaneoPuertos():
+    if not shutil.which("nmap"):
+        print(f"{bcolors.FAIL}[-] Nmap no está instalado o no está en el PATH{bcolors.ENDC}")
+        return
     try:
 
         scanner = nmap.PortScanner()
@@ -85,6 +101,10 @@ def escaneoPuertos():
         print("[*] Escaneando...")
         scanner.scan(target, arguments=options)
         # )
+        
+        if not scanner.all_hosts():
+            print(f"{bcolors.WARNING}[!] El host no respondió o está inactivo.{bcolors.ENDC}")
+            return
 
         # Output del escaneo
         for host in scanner.all_hosts():

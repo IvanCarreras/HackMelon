@@ -1,42 +1,60 @@
+# ---------------------------------------------------------------#
+#                              XSS                               #
+# ---------------------------------------------------------------#
+
 import os
 import requests
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor
+import time
+from colores import bcolors
+def cargar_payloads(path):
+    with open(path, encoding='utf-8', errors='ignore') as file:
+        return file.read().splitlines()
+
+# La peticion
+def hacer_peticion_xss(url):
+    try:
+        return requests.get(url, timeout=5)
+    except requests.RequestException:
+        return None
+
 
 def XSS_script():
     print("=" * 50)
-    # https://xss-game.appspot.com/level1/frame?query=
-    # "http://localhost/Web_pruebas/?name="
-
     try:
-        url = input("Introduce una URL: ")
-        diccionario = os.path.join(os.path.dirname(
-            __file__), "assets", "xss-payload-list.txt")
+        base_url = input("Introduce una URL con el parámetro (ej: http://target.com/page?input=): ").strip()
+        if "=" not in base_url:
+            print("[-] La URL debe contener un parámetro (por ejemplo '?q=')")
+            return
+        
+        print(f"{bcolors.OKGREEN}[+] Fuzzing iniciado con {len(urls)} rutas posibles...{bcolors.ENDC}")
+        start_time = time.time()
 
-        with open(diccionario) as file:
-            payloads = file.read().splitlines()
+        diccionario = os.path.abspath(os.path.join(os.path.dirname(__file__),"..","..", "assets", "xss-payload-list.txt"))
+        payloads = cargar_payloads(diccionario)
 
-        barrita = tqdm(total=len(payloads), desc="Progreso",
-                       unit="urls", dynamic_ncols=True)
-        isVuln = False
-        for payload in payloads:
-            # Crear la URL con el payload
-            url_completa_test = url + payload
-            response = requests.get(url_completa_test)
+        barra = tqdm(total=len(payloads), desc="Progreso", unit="payloads", dynamic_ncols=True)
+        vulnerable = False
 
-            # Verificar si la respuesta contiene el payload
-            if payload in response.text:
-                tqdm.write(f"Vulnerable a XSS con el payload: {payload}")
-                isVuln = True
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            for payload in payloads:
+                url_test = base_url + payload
+                response = hacer_peticion_xss(url_test)
 
-            barrita.update(1)
+                if response and payload in response.text:
+                    tqdm.write(f"[+] Vulnerable a XSS con payload: {payload}")
+                    vulnerable = True
 
-        if not isVuln:
-            print(f"La url \"{url}\" no es vulnerable a XSS")
+                barra.update(1)
+
+        if not vulnerable:
+            print(f"[✓] La URL '{base_url}' no parece vulnerable a XSS con esta wordlist.")
 
     except KeyboardInterrupt:
-        print("\nScript interrumpido por el usuario al pulsar control + C")
-
+        print("\n[-] Script interrumpido por el usuario.")
     finally:
-        barrita.close()
+        barra.close()
+        print(f"{bcolors.OKGREEN}[✓] Fuzzing finalizado en {round(time.time() - start_time, 2)} segundos.{bcolors.ENDC}")
 
-    print("=" * 50)
+        print("=" * 50)
