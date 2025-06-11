@@ -3,7 +3,7 @@
 ## 🔧 1. MEJORAS DIRECTAS AL CÓDIGO ACTUAL
 
 ### 🧹 Limpieza y organización
-- [ ] Refactorizar todo el codigo ya escrito
+- [x] Refactorizar todo el codigo ya escrito
 - [x] Cambiar rutas absolutas (`D:\DAM 2\...`) → usar rutas relativas con `os.path`.
 - [ ] Guardar resultados (XSS, fuzzing, escaneos, etc.) en archivos `.log` o `.json`.
 - [x] Evitar duplicación de código en funciones como `fuzzing()` y `XSS_script()`.
