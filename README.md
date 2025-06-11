@@ -1,4 +1,4 @@
-# 🍉 HackMelon v1.0
+# 🍉 HackMelon v1.1
 
 **HackMelon** es una herramienta multifuncional de ciberseguridad ofensiva y defensiva escrita en Python. Permite realizar escaneos de red, análisis de puertos, fuzzing web, detección de XSS, consulta de CVEs, y más.
 
@@ -24,4 +24,5 @@
 1. Clona este repositorio:
    ```bash
    git clone https://github.com/tuusuario/hackmelon.git
-   cd hackmelon
+   cd hackmelon/src
+   python3 main.py
