@@ -5,7 +5,7 @@
 > ⚠️ Esta herramienta ha sido creada con fines educativos. Úsala únicamente en entornos controlados o con permiso explícito.
 
 ---
-
+ 
 ## 🧩 Funcionalidades actuales
 
 | Módulo                       | Descripción |
